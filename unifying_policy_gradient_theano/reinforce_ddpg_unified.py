@@ -12,8 +12,12 @@ import numpy as np
 import pyprind
 import lasagne
 from lasagne.updates import adam
+
+
 import theano
-from rllab.baselines.on_policy_linear_feature_baseline import LinearFeatureBaseline
+import theano.tensor as TT
+from lasagne.updates import adam
+
 
 
 def parse_update_method(update_method, **kwargs):
@@ -84,11 +88,7 @@ class SimpleReplayPool(object):
         return self._size
 
 
-
 class SPG_DDPG(RLAlgorithm):
-    """
-    Deep Deterministic Policy Gradient.
-    """
 
     def __init__(
             self,
@@ -195,17 +195,13 @@ class SPG_DDPG(RLAlgorithm):
             extra_dims=1
         )
 
-
-        self.baseline = LinearFeatureBaseline(self.env.spec)
-
-        self.learning_rate = 0.1
-
         self.actions_var = self.env.action_space.new_tensor_variable(
-            'on_policy_actions',
+            'actions',
             extra_dims=1
         )
 
-        self.advantages_var = TT.vector('on_policy_advantages')
+        self.returns_var = TT.vector('returns')
+
 
         self.dist_info_vars = self.policy.dist_info_sym(self.observations_var)
 
@@ -215,21 +211,21 @@ class SPG_DDPG(RLAlgorithm):
         # rllab.distributions.DiagonalGaussian
         self.dist = self.policy.distribution
 
-        # Note that we negate the objective, since most optimizers assume a
-        # minimization problem
-        self.surr = - TT.mean(self.dist.log_likelihood_sym(self.actions_var, self.dist_info_vars) * self.advantages_var)
 
+        self.surr = - TT.mean(self.dist.log_likelihood_sym(self.actions_var, self.dist_info_vars) * self.returns_var)
         self.params = self.policy.get_params(trainable=True)
-
         self.grads = theano.grad(self.surr, self.params)
 
 
+        self.learning_rate = 0.01
+
         self.f_train = theano.function(
-            inputs=[self.observations_var, self.actions_var, self.advantages_var],
+            inputs=[self.observations_var, self.actions_var, self.returns_var],
             outputs=None,
             updates=adam(self.grads, self.params, learning_rate=self.learning_rate),
             allow_input_downcast=True
         )
+
 
 
     def start_worker(self):
@@ -255,16 +251,23 @@ class SPG_DDPG(RLAlgorithm):
         terminal = False
         on_policy_terminal = False
         observation = self.env.reset()
-        on_policy_observation = self.env.reset()
 
-        N_Trajectories = 1
-        S_time_steps = 100
+        on_policy_observation = self.env.reset()
 
         sample_policy = pickle.loads(pickle.dumps(self.policy))
 
         for epoch in range(self.n_epochs):
             logger.push_prefix('epoch #%d | ' % epoch)
             logger.log("Training started")
+
+            paths = []
+
+            on_policy_returns = []
+            return_so_far = 0
+
+            on_policy_observations = []
+            on_policy_actions = []
+            on_policy_rewards = []
 
 
             for epoch_itr in pyprind.prog_bar(range(self.epoch_length)):
@@ -279,75 +282,23 @@ class SPG_DDPG(RLAlgorithm):
                     self.es_path_returns.append(path_return)
                     path_length = 0
                     path_return = 0
+
                     on_policy_observation = self.env.reset()
-           
 
-                paths = []     
-
-                """
-                SPG from here
-                """
-                for _ in range(N_Trajectories):
-                    on_policy_observations = []
-                    on_policy_actions = []
-                    on_policy_rewards = []
-
-                    on_policy_observation = self.env.reset() 
-
-                    for _ in range(S_time_steps):
-                        
-                        on_policy_action = self.get_action_on_policy(self.env, on_policy_observation, policy=sample_policy)
-                        on_policy_next_observation, on_policy_reward, on_policy_terminal, _ = self.env.step(on_policy_action)
-
-                        on_policy_observations.append(on_policy_observation)
-                        on_policy_actions.append(on_policy_action)
-                        on_policy_rewards.append(on_policy_reward)
-
-                        on_policy_observation = on_policy_next_observation
-
-                        # if on_policy_terminal:
-                        #     # Finish rollout if terminal state reached
-                        #     break
-
-                    path = dict(
-                        on_policy_observations=np.array(on_policy_observations),
-                        on_policy_actions=np.array(on_policy_actions),
-                        on_policy_rewards=np.array(on_policy_rewards),
-                    )
-                    path_baseline = self.baseline.predict(path)
-                    on_policy_advantages = []
-                    on_policy_returns = []
-                    on_policy_return_so_far = 0
-
-                    for t in range(len(on_policy_rewards) - 1, -1, -1):
-                        on_policy_return_so_far = on_policy_rewards[t] + self.discount * on_policy_return_so_far
-                        on_policy_returns.append(on_policy_return_so_far)
-                        on_policy_advantage = on_policy_return_so_far - path_baseline[t]
-                        on_policy_advantages.append(on_policy_advantage)
-                    # The advantages are stored backwards in time, so we need to revert it
-                    on_policy_advantages = np.array(on_policy_advantages[::-1])
-                    # And we need to do the same thing for the list of returns
-                    on_policy_returns = np.array(on_policy_returns[::-1])
-
-                    on_policy_advantages = (on_policy_advantages - np.mean(on_policy_advantages)) / (np.std(on_policy_advantages) + 1e-8)
-                    path["on_policy_advantages"] = on_policy_advantages
-                    path["on_policy_returns"] = on_policy_returns
-
-                    paths.append(path)
-
-                self.baseline.fit(paths)
-
-                on_policy_observations = np.concatenate([p["on_policy_observations"] for p in paths])
-                on_policy_actions = np.concatenate([p["on_policy_actions"] for p in paths])
-                on_policy_advantages = np.concatenate([p["on_policy_advantages"] for p in paths])
-
-
-
-                """
-                DDPG from here
-                """
+                    
                 action = self.es.get_action(itr, observation, policy=sample_policy)  # qf=qf)
+
+                on_policy_action, _ = self.policy.get_action(observation)
+
                 next_observation, reward, terminal, _ = self.env.step(action)
+
+                on_policy_next_observation, on_policy_reward, on_policy_terminal, _ = self.env.step(on_policy_action)
+
+                on_policy_observations.append(on_policy_observation)
+                on_policy_actions.append(on_policy_action)
+                on_policy_rewards.append(on_policy_reward)
+
+                on_policy_observation = on_policy_next_observation
 
 
                 path_length += 1
@@ -366,10 +317,28 @@ class SPG_DDPG(RLAlgorithm):
 
                 observation = next_observation
 
+                for t in range(len(on_policy_rewards) - 1, -1, -1):
+                    return_so_far = on_policy_rewards[t] + self.discount * return_so_far
+                    on_policy_returns.append(return_so_far)
+                on_policy_returns = on_policy_returns[::-1]
+
+                paths.append(dict(
+                    on_policy_observations=np.array(on_policy_observations),
+                    on_policy_actions=np.array(on_policy_actions),
+                    on_policy_rewards=np.array(on_policy_rewards),
+                    on_policy_returns=np.array(on_policy_returns)
+                ))
+
+
+                on_policy_observations = np.concatenate([p["on_policy_observations"] for p in paths])
+                on_policy_actions = np.concatenate([p["on_policy_actions"] for p in paths])
+                on_policy_returns = np.concatenate([p["on_policy_returns"] for p in paths])
+
 
                 sigma = np.random.randint(0,2)
-
                 if sigma==0:
+                    self.f_train(on_policy_observations, on_policy_actions, on_policy_returns)
+                else:
                     if pool.size >= self.min_pool_size:
                         for update_itr in range(self.n_updates_per_sample):
                             # Train policy
@@ -377,14 +346,11 @@ class SPG_DDPG(RLAlgorithm):
                             self.do_training(itr, batch)
                         sample_policy.set_param_values(self.policy.get_param_values())
 
-                else:
-                    self.f_train(on_policy_observations, on_policy_actions, on_policy_advantages)                    
+                on_policy_observations = []
+                on_policy_actions = []
+                on_policy_rewards = []
+                on_policy_returns = []
 
-
-                # on_policy_observations = []
-                # on_policy_actions = []
-                # on_policy_rewards = []
-                # on_policy_returns = []
 
                 itr += 1
 
@@ -560,20 +526,20 @@ class SPG_DDPG(RLAlgorithm):
                                   np.min(self.es_path_returns))
         logger.record_tabular('AverageDiscountedReturn',
                               average_discounted_return)
-        logger.record_tabular('AverageQLoss', average_q_loss)
-        logger.record_tabular('AveragePolicySurr', average_policy_surr)
-        logger.record_tabular('AverageQ', np.mean(all_qs))
-        logger.record_tabular('AverageAbsQ', np.mean(np.abs(all_qs)))
-        logger.record_tabular('AverageY', np.mean(all_ys))
-        logger.record_tabular('AverageAbsY', np.mean(np.abs(all_ys)))
-        logger.record_tabular('AverageAbsQYDiff',
-                              np.mean(np.abs(all_qs - all_ys)))
-        logger.record_tabular('AverageAction', average_action)
+        # logger.record_tabular('AverageQLoss', average_q_loss)
+        # logger.record_tabular('AveragePolicySurr', average_policy_surr)
+        # logger.record_tabular('AverageQ', np.mean(all_qs))
+        # logger.record_tabular('AverageAbsQ', np.mean(np.abs(all_qs)))
+        # logger.record_tabular('AverageY', np.mean(all_ys))
+        # logger.record_tabular('AverageAbsY', np.mean(np.abs(all_ys)))
+        # logger.record_tabular('AverageAbsQYDiff',
+        #                       np.mean(np.abs(all_qs - all_ys)))
+        # logger.record_tabular('AverageAction', average_action)
 
-        logger.record_tabular('PolicyRegParamNorm',
-                              policy_reg_param_norm)
-        logger.record_tabular('QFunRegParamNorm',
-                              qfun_reg_param_norm)
+        # logger.record_tabular('PolicyRegParamNorm',
+        #                       policy_reg_param_norm)
+        # logger.record_tabular('QFunRegParamNorm',
+        #                       qfun_reg_param_norm)
 
         self.env.log_diagnostics(paths)
         self.policy.log_diagnostics(paths)

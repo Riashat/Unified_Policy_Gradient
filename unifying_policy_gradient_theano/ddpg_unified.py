@@ -281,6 +281,7 @@ class DDPG(RLAlgorithm):
         for epoch in range(self.n_epochs):
             logger.push_prefix('epoch #%d | ' % epoch)
             logger.log("Training started")
+
             for epoch_itr in pyprind.prog_bar(range(self.epoch_length)):
                 # Execute policy
                 if terminal:  # or path_length > self.max_path_length:
@@ -295,12 +296,13 @@ class DDPG(RLAlgorithm):
                     path_return = 0
 
                     on_policy_observation = self.env.reset()
+
                     
                 action = self.es.get_action(itr, observation, policy=sample_policy)  # qf=qf)
                 on_policy_action = self.get_action_on_policy(self.env, on_policy_observation, policy=sample_policy)
                 next_observation, reward, terminal, _ = self.env.step(action)
 
-                on_policy_next_observation, on_policy_reward, on_policy_terminal, _ = self.env.step(action)
+                on_policy_next_observation, on_policy_reward, on_policy_terminal, _ = self.env.step(on_policy_action)
 
 
                 path_length += 1
