@@ -1,0 +1,46 @@
+2017-05-04 19:34:50.843495 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] Populating workers...
+2017-05-04 19:34:50.844557 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] Populated
+2017-05-04 19:34:57.961430 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #0 | Training started
+2017-05-04 19:39:06.022764 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #0 | Training finished
+2017-05-04 19:39:06.023965 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #1 | Training started
+2017-05-04 19:43:14.123307 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #1 | Training finished
+2017-05-04 19:43:14.124245 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #2 | Training started
+2017-05-04 19:47:23.058564 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #2 | Training finished
+2017-05-04 19:47:23.080401 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #3 | Training started
+2017-05-04 19:51:32.103989 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #3 | Training finished
+2017-05-04 19:51:32.105015 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #4 | Training started
+2017-05-04 19:55:41.236614 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #4 | Training finished
+2017-05-04 19:55:41.242351 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #5 | Training started
+2017-05-04 19:59:49.929044 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #5 | Training finished
+2017-05-04 19:59:49.949156 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #6 | Training started
+2017-05-04 20:04:01.132454 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #6 | Training finished
+2017-05-04 20:04:01.133409 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #7 | Training started
+2017-05-04 20:08:16.861268 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #7 | Training finished
+2017-05-04 20:08:16.863827 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #8 | Training started
+2017-05-04 20:11:52.808334 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #8 | Training finished
+2017-05-04 20:11:52.809310 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #9 | Training started
+2017-05-04 20:15:06.750821 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #9 | Training finished
+2017-05-04 20:15:06.752241 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #9 | Collecting samples for evaluation
+2017-05-04 23:39:21.279247 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] Populating workers...
+2017-05-04 23:39:21.279674 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] Populated
+2017-05-04 23:39:28.251260 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #0 | Training started
+2017-05-04 23:44:41.461143 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #0 | Training finished
+2017-05-04 23:44:41.462330 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #1 | Training started
+2017-05-04 23:50:34.196037 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #1 | Training finished
+2017-05-04 23:50:34.199169 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #2 | Training started
+2017-05-04 23:56:19.398669 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #2 | Training finished
+2017-05-04 23:56:19.403260 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #3 | Training started
+2017-05-05 00:01:57.767845 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #3 | Training finished
+2017-05-05 00:01:57.783526 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #4 | Training started
+2017-05-05 00:07:19.621460 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #4 | Training finished
+2017-05-05 00:07:19.757849 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #5 | Training started
+2017-05-05 00:12:39.007698 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #5 | Training finished
+2017-05-05 00:12:39.009489 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #6 | Training started
+2017-05-05 00:17:51.103078 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #6 | Training finished
+2017-05-05 00:17:51.104379 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #7 | Training started
+2017-05-05 00:23:07.249681 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #7 | Training finished
+2017-05-05 00:23:07.263505 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #8 | Training started
+2017-05-05 00:28:27.820921 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #8 | Training finished
+2017-05-05 00:28:27.822812 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #9 | Training started
+2017-05-05 00:33:47.440855 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #9 | Training finished
+2017-05-05 00:33:47.451526 EDT | [Unified_Policy_Gradients/Unified_SPG_DDPG_Walker] epoch #9 | Collecting samples for evaluation
