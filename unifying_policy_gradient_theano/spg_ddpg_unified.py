@@ -381,10 +381,10 @@ class SPG_DDPG(RLAlgorithm):
                     self.f_train(on_policy_observations, on_policy_actions, on_policy_advantages)                    
 
 
-                # on_policy_observations = []
-                # on_policy_actions = []
-                # on_policy_rewards = []
-                # on_policy_returns = []
+                on_policy_observations = []
+                on_policy_actions = []
+                on_policy_rewards = []
+                on_policy_returns = []
 
                 itr += 1
 
@@ -524,21 +524,21 @@ class SPG_DDPG(RLAlgorithm):
 
         returns = [sum(path["rewards"]) for path in paths]
 
-        # all_qs = np.concatenate(self.q_averages)
-        # all_ys = np.concatenate(self.y_averages)
+        all_qs = np.concatenate(self.q_averages)
+        all_ys = np.concatenate(self.y_averages)
 
-        # average_q_loss = np.mean(self.qf_loss_averages)
-        # average_policy_surr = np.mean(self.policy_surr_averages)
-        # average_action = np.mean(np.square(np.concatenate(
-        #     [path["actions"] for path in paths]
-        # )))
+        average_q_loss = np.mean(self.qf_loss_averages)
+        average_policy_surr = np.mean(self.policy_surr_averages)
+        average_action = np.mean(np.square(np.concatenate(
+            [path["actions"] for path in paths]
+        )))
 
-        # policy_reg_param_norm = np.linalg.norm(
-        #     self.policy.get_param_values(regularizable=True)
-        # )
-        # qfun_reg_param_norm = np.linalg.norm(
-        #     self.qf.get_param_values(regularizable=True)
-        # )
+        policy_reg_param_norm = np.linalg.norm(
+            self.policy.get_param_values(regularizable=True)
+        )
+        qfun_reg_param_norm = np.linalg.norm(
+            self.qf.get_param_values(regularizable=True)
+        )
 
         logger.record_tabular('Epoch', epoch)
         logger.record_tabular('AverageReturn',
